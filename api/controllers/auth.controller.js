@@ -2,6 +2,8 @@ import User from '../models/user.model.js';
 import bcryptjs from 'bcryptjs';
 import { errorHandler } from '../utils/error.js';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+dotenv.config();
 
 export const signup = async (req, res, next) => {
   const { username, email, password } = req.body;
@@ -22,7 +24,7 @@ export const signin = async (req, res, next) => {
     if (!validUser) return next(errorHandler(404, 'User not found!'));
     const validPassword = bcryptjs.compareSync(password, validUser.password);
     if (!validPassword) return next(errorHandler(401, 'Wrong credentials!'));
-    const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: validUser._id }, '92b71f86c3610e6f8ee889265046b674b7e4b7d12b6d4bf463b1c0e3b764c9a7');
     const { password: pass, ...rest } = validUser._doc;
     res
       .cookie('access_token', token, { httpOnly: true })
@@ -43,6 +45,7 @@ export const google = async (req, res, next) => {
         .cookie('access_token', token, { httpOnly: true })
         .status(200)
         .json(rest);
+        console.log('JWT_SECRET:', process.env.JWT_SECRET);
     } else {
       const generatedPassword =
         Math.random().toString(36).slice(-8) +
@@ -57,15 +60,21 @@ export const google = async (req, res, next) => {
         avatar: req.body.photo,
       });
       await newUser.save();
-      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
-      const { password: pass, ...rest } = newUser._doc;
+      // const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+      // const { password: pass, ...rest } = newUser._doc;
+      // res
+      //   .cookie('access_token', token, { httpOnly: true })
+      //   .status(200)
+      //   .json(rest);
+      const token = jwt.sign({ id: validUser._id }, '92b71f86c3610e6f8ee889265046b674b7e4b7d12b6d4bf463b1c0e3b764c9a7');
+      const { password: pass, ...rest } = validUser._doc;
       res
         .cookie('access_token', token, { httpOnly: true })
         .status(200)
         .json(rest);
     }
   } catch (error) {
-    next(error);
+    res.status(500).json({ susccess: false, message: "Failed to login" })
   }
 };
 

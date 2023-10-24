@@ -231,7 +231,7 @@ export default function Profile() {
           onClick={handleDeleteUser}
           className='text-red-700 cursor-pointer'
         >
-          Delete account
+          
         </span>
         <span onClick={handleSignOut} className='text-red-700 cursor-pointer'>
           Sign out
